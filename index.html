@@ -3,84 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Object Detection & Analysis</title>
+    <title>AI Object Detection & Analysis - 3D Interface</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Hide scrollbars */
-        }
-        /* Style for the 3D background canvas */
-        #bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-        /* Custom glowing text effect */
-        .text-glow {
-            text-shadow: 0 0 8px rgba(59, 130, 246, 0.6), 0 0 20px rgba(59, 130, 246, 0.4);
-        }
-        /* Styling for the file input to make it a drop zone */
-        .drop-zone {
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-        .drop-zone.dragover {
-            border-color: #3b82f6;
-            background-color: rgba(59, 130, 246, 0.1);
-        }
-        /* Hide the default file input */
-        #image-input {
-            display: none;
-        }
-        /* Active tab style */
-        .tab-active {
-            background-color: #3b82f6;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-900 text-white">
     <canvas id="bg-canvas"></canvas>
 
-    <div class="relative min-h-screen flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-5xl text-center">
-            <div class="mb-6">
+    <div id="scene-container" class="relative p-2 sm:p-4 lg:p-8">
+        <div id="main-panel" class="w-full max-w-5xl text-center my-8">
+            <div class="mb-4">
                 <div class="inline-block p-2 bg-blue-500/20 rounded-full mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400 text-glow"><path d="M15.5 21a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-.5.5h-.5z"/><path d="M8.5 21a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-.5.5h-.5z"/><path d="M12 14a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v10a.5.5 0 0 1-.5.5h-.5z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
                 </div>
-                <h1 class="text-4xl md:text-5xl font-bold text-blue-300 text-glow mb-2">AI Object Detection & Analysis</h1>
-                <p class="text-lg text-gray-300 max-w-3xl mx-auto">
+                <h1 class="text-3xl md:text-5xl font-bold text-blue-300 text-glow mb-2">AI Object Detection & Analysis</h1>
+                <p class="text-base md:text-lg text-gray-300 max-w-3xl mx-auto">
                     A comprehensive suite for running and evaluating your custom YOLO model.
                 </p>
             </div>
 
-            <div class="mb-6 flex justify-center space-x-2 bg-gray-800/50 p-1 rounded-lg max-w-sm mx-auto">
-                <button id="btn-detector" class="tab-btn tab-active px-6 py-2 rounded-md transition">Detector</button>
-                <button id="btn-analysis" class="tab-btn px-6 py-2 rounded-md transition text-gray-400">Analysis</button>
+            <div class="my-6 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 max-w-2xl mx-auto">
+                <div class="bg-gray-800/50 p-3 rounded-lg text-center border border-gray-700">
+                    <h3 class="text-gray-400 text-xs sm:text-sm font-semibold tracking-wider uppercase">Accuracy (mAP@0.5)</h3>
+                    <p class="text-2xl sm:text-3xl font-bold text-cyan-400">95.4%</p>
+                </div>
+                <div class="bg-gray-800/50 p-3 rounded-lg text-center border border-gray-700">
+                    <h3 class="text-gray-400 text-xs sm:text-sm font-semibold tracking-wider uppercase">Precision</h3>
+                    <p class="text-2xl sm:text-3xl font-bold text-cyan-400">98.8%</p>
+                </div>
+                <div class="bg-gray-800/50 p-3 rounded-lg text-center border border-gray-700 col-span-2 sm:col-span-1">
+                    <h3 class="text-gray-400 text-xs sm:text-sm font-semibold tracking-wider uppercase">Recall</h3>
+                    <p class="text-2xl sm:text-3xl font-bold text-cyan-400">92.1%</p>
+                </div>
+            </div>
+            
+            <div class="mb-4 flex justify-center space-x-1 sm:space-x-2 bg-gray-800/50 p-1 rounded-lg max-w-sm sm:max-w-md mx-auto">
+                <button id="btn-detector" class="tab-btn tab-active px-4 sm:px-6 py-2 rounded-md transition text-sm sm:text-base">Detector</button>
+                <button id="btn-analysis" class="tab-btn px-4 sm:px-6 py-2 rounded-md transition text-gray-400 text-sm sm:text-base">Analysis</button>
+                <button id="btn-project-info" class="tab-btn px-4 sm:px-6 py-2 rounded-md transition text-gray-400 text-sm sm:text-base">Project Info</button>
             </div>
 
-            <div id="page-container" class="bg-gray-800/50 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-gray-700 overflow-y-auto" style="max-height: 70vh;">
+            <div id="page-container" class="bg-gray-800/50 backdrop-blur-md rounded-2xl p-4 md:p-6 shadow-2xl border border-gray-700 overflow-y-auto text-left" style="max-height: 70vh;">
                 <div id="detector-page">
-                    <label for="image-input" class="drop-zone w-full p-10 flex flex-col items-center justify-center cursor-pointer rounded-xl" id="drop-zone">
+                    <label for="image-input" class="drop-zone w-full p-6 sm:p-10 flex flex-col items-center justify-center cursor-pointer rounded-xl" id="drop-zone">
                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 mb-4"><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/><line x1="16" y1="5" x2="22" y2="5"/><line x1="19" y1="2" x2="19" y2="8"/><path d="m15 12-3.44 3.44a1 1 0 0 0 1.42 1.42l.16-.16.16-.16L17 13"/></svg>
-                        <p class="text-gray-300">Click to upload or drag and drop an image</p>
-                        <p class="text-sm text-gray-500">PNG, JPG, or WEBP</p>
+                        <p class="text-gray-300 text-center">Click to upload or drag and drop an image</p>
+                        <p class="text-sm text-gray-500 text-center">PNG, JPG, or WEBP</p>
                     </label>
-                    <input type="file" id="image-input" accept="image/*">
+                    <div id="model-status" class="mt-4 text-center text-gray-400"></div>
+                    <input type="file" id="image-input" accept="image/*" disabled>
                     <div id="output-container" class="mt-6 hidden">
                         <canvas id="output-canvas" class="w-full h-auto rounded-lg"></canvas>
                     </div>
@@ -89,78 +68,130 @@
                     </div>
                 </div>
 
-                <div id="analysis-page" class="hidden text-left">
-                    <h2 class="text-2xl font-bold text-blue-300 mb-4">Performance Analysis Report</h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-gray-700/50 p-4 rounded-lg">
-                            <h3 class="text-gray-400 text-sm">mAP @ 0.5 IoU</h3>
-                            <p class="text-3xl font-bold text-cyan-400">94.6%</p>
-                        </div>
-                        <div class="bg-gray-700/50 p-4 rounded-lg">
+                <div id="analysis-page" class="hidden">
+                    <h2 class="text-2xl font-bold text-blue-300 mb-4 text-center">Performance Analysis Report</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-gray-700/50 p-4 rounded-lg text-center">
                             <h3 class="text-gray-400 text-sm">Precision</h3>
+                            <p class="text-3xl font-bold text-cyan-400">98.8%</p>
+                        </div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg text-center">
+                            <h3 class="text-gray-400 text-sm">Recall</h3>
                             <p class="text-3xl font-bold text-cyan-400">92.1%</p>
                         </div>
-                        <div class="bg-gray-700/50 p-4 rounded-lg">
-                            <h3 class="text-gray-400 text-sm">Recall</h3>
-                            <p class="text-3xl font-bold text-cyan-400">96.8%</p>
+                        <div class="bg-gray-700/50 p-4 rounded-lg text-center">
+                            <h3 class="text-gray-400 text-sm">mAP @ 0.5</h3>
+                            <p class="text-3xl font-bold text-cyan-400">95.4%</p>
+                        </div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg text-center">
+                            <h3 class="text-gray-400 text-sm">mAP @ .5:.95</h3>
+                            <p class="text-3xl font-bold text-cyan-400">91.7%</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-cyan-400 mb-3 text-center">Confusion Matrix</h3>
+                            <div class="flex flex-col items-center">
+                                <p class="text-sm text-blue-300 font-semibold mb-1">Predicted Class</p>
+                                <div class="flex items-center">
+                                    <p class="text-sm text-blue-300 font-semibold transform -rotate-90">Actual Class</p>
+                                    <div class="grid grid-cols-3 gap-1 bg-gray-900 p-2 rounded-lg text-white text-center text-xs sm:text-sm font-mono">
+                                        <div class="p-1 sm:p-2 font-semibold text-blue-300">FireExt</div>
+                                        <div class="p-1 sm:p-2 font-semibold text-blue-300">ToolBox</div>
+                                        <div class="p-1 sm:p-2 font-semibold text-blue-300">O2Tank</div>
+                                        
+                                        <div class="bg-green-500/80 rounded p-2 sm:p-4 font-bold sm:text-lg">132</div>
+                                        <div class="bg-red-500/50 rounded p-2 sm:p-4">1</div>
+                                        <div class="bg-red-500/50 rounded p-2 sm:p-4">0</div>
+                                        
+                                        <div class="bg-red-500/50 rounded p-2 sm:p-4">2</div>
+                                        <div class="bg-green-500/80 rounded p-2 sm:p-4 font-bold sm:text-lg">95</div>
+                                        <div class="bg-red-500/50 rounded p-2 sm:p-4">3</div>
+
+                                        <div class="bg-red-500/50 rounded p-2 sm:p-4">0</div>
+                                        <div class="bg-red-500/50 rounded p-2 sm:p-4">1</div>
+                                        <div class="bg-green-500/80 rounded p-2 sm:p-4 font-bold sm:text-lg">115</div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2 text-center">(Note: This is a representative matrix based on model evaluation.)</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-cyan-400 mb-3 text-center">Precision-Recall Curve</h3>
+                            <div class="bg-gray-800/60 p-4 rounded-lg relative aspect-w-1 aspect-h-1" style="height: 250px;">
+                                 <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                    <line x1="10" y1="90" x2="90" y2="90" stroke="#6b7280" stroke-width="1"/>
+                                    <line x1="10" y1="10" x2="10" y2="90" stroke="#6b7280" stroke-width="1"/>
+                                    <polyline points="10,12 20,15 40,25 60,45 80,85 88,90" fill="none" stroke="#3b82f6" stroke-width="2"/>
+                                    <text x="50" y="98" text-anchor="middle" fill="#9ca3af" font-size="5">Recall</text>
+                                    <text x="2" y="50" text-anchor="middle" transform="rotate(-90 2 50)" fill="#9ca3af" font-size="5">Precision</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="project-info-page" class="hidden">
+                    <h2 class="text-2xl font-bold text-blue-300 mb-6 text-center">Hack with India - Project Details</h2>
+
+                     <div class="info-section">
+                        <h3 class="info-heading">👥 Team Details</h3>
+                        <div class="info-content">
+                            <p class="mb-2"><strong>Team Name:</strong> BRAINROT_CODERS</p>
+                            <p><strong>Team Leader:</strong> YUVRAJ</p>
+                            <p><strong>Members:</strong></p>
+                            <ul class="list-disc mt-1">
+                                <li>VIDYANSHU PATEL</li>
+                                <li>TANISHK KUMAR</li>
+                                <li>RACHIT SINGHAL</li>
+                            </ul>
                         </div>
                     </div>
 
-                    <div class="mb-6">
-                        <h3 class="text-xl font-semibold text-blue-300 mb-2">Confusion Matrix</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-center bg-gray-700/50 rounded-lg">
-                                <thead class="text-xs text-gray-300 uppercase">
-                                    <tr>
-                                        <th class="p-3">Predicted →<br>Actual ↓</th>
-                                        <th class="p-3 bg-blue-900/30">Fire Extinguisher</th>
-                                        <th class="p-3 bg-blue-900/30">ToolBox</th>
-                                        <th class="p-3 bg-blue-900/30">Oxygen Tank</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="border-t border-gray-600">
-                                        <th class="p-3 bg-blue-900/30">Fire Extinguisher</th>
-                                        <td class="p-3 bg-green-500/20 font-bold">98</td>
-                                        <td class="p-3">2</td>
-                                        <td class="p-3">0</td>
-                                    </tr>
-                                    <tr class="border-t border-gray-600">
-                                        <th class="p-3 bg-blue-900/30">ToolBox</th>
-                                        <td class="p-3">1</td>
-                                        <td class="p-3 bg-green-500/20 font-bold">95</td>
-                                        <td class="p-3 bg-red-500/20">4</td>
-                                    </tr>
-                                    <tr class="border-t border-gray-600">
-                                        <th class="p-3 bg-blue-900/30">Oxygen Tank</th>
-                                        <td class="p-3">0</td>
-                                        <td class="p-3 bg-red-500/20">3</td>
-                                        <td class="p-3 bg-green-500/20 font-bold">97</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <div class="info-section">
+                        <h3 class="info-heading">🎯 Theme Name</h3>
+                        <div class="info-content">
+                            <p>Safety and Surveillance</p>
                         </div>
                     </div>
                     
-                    <div>
-                        <h3 class="text-xl font-semibold text-blue-300 mb-2">Failure Case Analysis</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div class="bg-gray-700/50 p-3 rounded-lg">
-                                <img src="https://placehold.co/600x400/1f2937/9ca3af?text=Heavy+Occlusion" class="rounded-md mb-2" alt="Heavy Occlusion" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1f2937/ff0000?text=Image+Error';">
-                                <h4 class="font-semibold">Heavy Occlusion</h4>
-                                <p class="text-sm text-gray-400">Model failed to detect a toolbox partially hidden behind an oxygen tank.</p>
-                            </div>
-                            <div class="bg-gray-700/50 p-3 rounded-lg">
-                                <img src="https://placehold.co/600x400/1f2937/9ca3af?text=Poor+Lighting" class="rounded-md mb-2" alt="Poor Lighting" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1f2937/ff0000?text=Image+Error';">
-                                <h4 class="font-semibold">Poor Lighting</h4>
-                                <p class="text-sm text-gray-400">Low confidence score for a fire extinguisher in a dimly lit area of the station.</p>
-                            </div>
-                            <div class="bg-gray-700/50 p-3 rounded-lg">
-                                <img src="https://placehold.co/600x400/1f2937/9ca3af?text=Unusual+Angle" class="rounded-md mb-2" alt="Unusual Angle" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1f2937/ff0000?text=Image+Error';">
-                                <h4 class="font-semibold">Unusual Angle</h4>
-                                <p class="text-sm text-gray-400">Oxygen tank viewed from the top was misclassified as a toolbox.</p>
-                            </div>
+                    <div class="info-section">
+                        <h3 class="info-heading">❓ Problem and Solution</h3>
+                        <div class="info-content">
+                            <p><strong>Problem:</strong> Construction sites are hazardous, and accidents often occur due to misplaced safety equipment. Manually tracking items like fire extinguishers, first-aid toolboxes, and oxygen tanks is inefficient, slow, and error-prone, leading to safety risks and non-compliance.</p>
+                             <p class="mt-2"><strong>Solution:</strong> We have developed an AI-powered object detection system with a web interface to automatically identify and locate critical safety equipment from an uploaded image. This provides real-time analysis, ensuring equipment is always accounted for and enhancing worksite safety.</p>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h3 class="info-heading">🛠️ Methodology & Implementation</h3>
+                         <div class="info-content">
+                            The project's core is a YOLOv8 model trained on a custom dataset of safety gear. This model is converted to the ONNX format to run efficiently in the browser using ONNX Runtime Web. The frontend is built with HTML, Tailwind CSS, and Three.js for a dynamic UI. When an image is uploaded, it's processed and fed to the model, which returns bounding boxes and confidence scores for detected items.
+                         </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3 class="info-heading">💻 Technology Used</h3>
+                        <div class="info-content">
+                            <ul>
+                                <li><strong>🤖 AI/ML:</strong> Python, PyTorch, YOLOv8, Roboflow, ONNX</li>
+                                <li><strong>🌐 Frontend:</strong> HTML, JavaScript, Tailwind CSS, Three.js, ONNX Runtime Web</li>
+                                <li><strong>🔧 Tools:</strong> VS Code, Git & GitHub</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3 class="info-heading">📈 Feasibility and Market Use</h3>
+                       <div class="info-content">
+                            The solution is highly feasible as it runs entirely client-side, reducing server costs and complexity. Its market is vast, including construction sites, manufacturing plants, hospitals, and any facility where tracking essential equipment is critical for safety and operational efficiency.
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h3 class="info-heading">🏁 Conclusion</h3>
+                        <div class="info-content">
+                            Our AI-driven platform offers a scalable, user-friendly, and efficient solution to automate safety compliance. By providing immediate visual feedback, it significantly reduces accident risks and fosters a safer working environment for everyone.
                         </div>
                     </div>
                 </div>
@@ -168,243 +199,6 @@
         </div>
     </div>
 
-    <script type="module">
-        // --- Page Navigation ---
-        const btnDetector = document.getElementById('btn-detector');
-        const btnAnalysis = document.getElementById('btn-analysis');
-        const detectorPage = document.getElementById('detector-page');
-        const analysisPage = document.getElementById('analysis-page');
-        const tabBtns = document.querySelectorAll('.tab-btn');
-
-        function showPage(pageToShow) {
-            detectorPage.classList.add('hidden');
-            analysisPage.classList.add('hidden');
-            pageToShow.classList.remove('hidden');
-        }
-
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                // Remove active styles from all buttons
-                tabBtns.forEach(b => {
-                    b.classList.remove('tab-active');
-                    b.classList.add('text-gray-400');
-                });
-                // Add active styles to the clicked button
-                const clickedButton = e.currentTarget;
-                clickedButton.classList.add('tab-active');
-                clickedButton.classList.remove('text-gray-400');
-            });
-        });
-
-        btnDetector.addEventListener('click', () => showPage(detectorPage));
-        btnAnalysis.addEventListener('click', () => showPage(analysisPage));
-
-        // --- 3D Background Setup ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        
-        const particlesGeometry = new THREE.BufferGeometry;
-        const particlesCnt = 5000;
-        const posArray = new Float32Array(particlesCnt * 3);
-        for (let i = 0; i < particlesCnt * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 5;
-        }
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({ size: 0.005, color: 0x3b82f6 });
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-        camera.position.z = 2;
-
-        document.addEventListener('mousemove', (event) => {
-            particlesMesh.rotation.y = event.clientX * 0.0001;
-            particlesMesh.rotation.x = event.clientY * 0.0001;
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // --- ONNX Model and Detection Logic ---
-        // Updated model path to use the new file
-        const MODEL_PATH = './best1.onnx'; 
-        const CLASSES = ["FireExtinguisher", "ToolBox", "OxygenTank"];
-        const CONFIDENCE_THRESHOLD = 0.5;
-        const IOU_THRESHOLD = 0.5;
-        
-        const fileInput = document.getElementById('image-input');
-        const dropZone = document.getElementById('drop-zone');
-        const outputContainer = document.getElementById('output-container');
-        const outputCanvas = document.getElementById('output-canvas');
-        const loader = document.getElementById('loader');
-        const ctx = outputCanvas.getContext('2d');
-
-        let session;
-
-        async function loadModel() {
-            try {
-                // Create an inference session. This will download the model if a URL is provided.
-                session = await ort.InferenceSession.create(MODEL_PATH);
-                console.log('Model loaded successfully.');
-            } catch (e) {
-                console.error('Failed to load the model:', e);
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'p-4 mb-4 bg-red-900/50 border border-red-700 text-red-300 rounded-lg text-left';
-                errorDiv.innerHTML = `<strong>Error:</strong> Could not load the ONNX model. <br>Please ensure the model file exists at: <code>${MODEL_PATH}</code><br><br>Details: ${e.message}`;
-                detectorPage.prepend(errorDiv);
-            }
-        }
-        // Load the model when the script runs
-        loadModel();
-
-        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            handleFile(e.dataTransfer.files[0]);
-        });
-
-        function handleFile(file) {
-            if (file && session) {
-                runObjectDetection(file);
-            } else if (!session) {
-                console.warn('Model is not loaded yet. Cannot process file.');
-            }
-        }
-
-        async function runObjectDetection(file) {
-            outputContainer.classList.add('hidden');
-            loader.classList.remove('hidden');
-            const image = new Image();
-            image.src = URL.createObjectURL(file);
-            image.onload = async () => {
-                try {
-                    const [input, xRatio, yRatio] = await preprocess(image);
-                    const feeds = { images: input };
-                    const results = await session.run(feeds);
-                    const output = results.output0.data; // The model output tensor data
-                    const boxes = postprocess(output, xRatio, yRatio);
-                    draw(image, boxes);
-                    outputContainer.classList.remove('hidden');
-                } catch (e) {
-                    console.error('Error during object detection:', e);
-                } finally {
-                    loader.classList.add('hidden');
-                }
-            };
-        }
-
-        async function preprocess(img) {
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            const modelWidth = 640;
-            const modelHeight = 640;
-            canvas.width = modelWidth;
-            canvas.height = modelHeight;
-            const xRatio = modelWidth / img.width;
-            const yRatio = modelHeight / img.height;
-            context.drawImage(img, 0, 0, modelWidth, modelHeight);
-            const imageData = context.getImageData(0, 0, modelWidth, modelHeight);
-            const data = imageData.data;
-            const red = [], green = [], blue = [];
-            for (let i = 0; i < data.length; i += 4) {
-                red.push(data[i] / 255.0);
-                green.push(data[i + 1] / 255.0);
-                blue.push(data[i + 2] / 255.0);
-            }
-            const transposedData = red.concat(green, blue);
-            const float32Data = new Float32Array(transposedData);
-            return [new ort.Tensor('float32', float32Data, [1, 3, modelHeight, modelWidth]), xRatio, yRatio];
-        }
-
-        function postprocess(output, xRatio, yRatio) {
-            // Transpose the output from [1, 7, 8400] to [8400, 7]
-            const transposed = [];
-            const numOutputChannels = CLASSES.length + 4; 
-            const numDetections = output.length / numOutputChannels;
-
-            for (let i = 0; i < numDetections; i++) {
-                const row = [];
-                for (let j = 0; j < numOutputChannels; j++) {
-                    row.push(output[i + j * numDetections]);
-                }
-                transposed.push(row);
-            }
-
-            const boxes = [];
-            for (const row of transposed) {
-                const [x, y, w, h, ...classScores] = row;
-                let maxScore = 0, classId = -1;
-                for(let i=0; i < classScores.length; i++) {
-                    if (classScores[i] > maxScore) {
-                        maxScore = classScores[i];
-                        classId = i;
-                    }
-                }
-                if (maxScore > CONFIDENCE_THRESHOLD) {
-                    boxes.push({
-                        box: [(x - w / 2) / xRatio, (y - h / 2) / yRatio, w / xRatio, h / yRatio],
-                        score: maxScore, classId: classId
-                    });
-                }
-            }
-            return nms(boxes, IOU_THRESHOLD);
-        }
-
-        function nms(boxes, iouThreshold) {
-            boxes.sort((a, b) => b.score - a.score);
-            const result = [];
-            while (boxes.length > 0) {
-                result.push(boxes[0]);
-                boxes = boxes.filter(box => iou(boxes[0], box) < iouThreshold);
-            }
-            return result;
-        }
-
-        function iou(boxA, boxB) {
-            const [ax1, ay1, aw, ah] = boxA.box;
-            const [bx1, by1, bw, bh] = boxB.box;
-            const ax2 = ax1 + aw, ay2 = ay1 + ah, bx2 = bx1 + bw, by2 = by1 + bh;
-            const x_left = Math.max(ax1, bx1), y_top = Math.max(ay1, by1);
-            const x_right = Math.min(ax2, bx2), y_bottom = Math.min(ay2, by2);
-            if (x_right < x_left || y_bottom < y_top) return 0.0;
-            const intersectionArea = (x_right - x_left) * (y_bottom - y_top);
-            const boxAArea = aw * ah, boxBArea = bw * bh;
-            return intersectionArea / (boxAArea + boxBArea - intersectionArea);
-        }
-
-        function draw(img, boxes) {
-            outputCanvas.width = img.width;
-            outputCanvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            boxes.forEach(({ box, score, classId }) => {
-                const [x, y, w, h] = box;
-                const label = `${CLASSES[classId]} (${(score * 100).toFixed(1)}%)`;
-                
-                ctx.strokeStyle = '#0ea5e9'; // A nice sky blue color
-                ctx.lineWidth = 3;
-                ctx.strokeRect(x, y, w, h);
-                
-                ctx.fillStyle = '#0ea5e9';
-                ctx.font = '16px Inter';
-                const textWidth = ctx.measureText(label).width;
-                ctx.fillRect(x - 1, y - 22, textWidth + 10, 22);
-                
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(label, x + 4, y - 6);
-            });
-        }
-    </script>
+    <script src="script.js" type="module"></script>
 </body>
 </html>
